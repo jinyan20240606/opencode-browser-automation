@@ -1,15 +1,19 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "chrome-devtools": {
-      "type": "local",
-      "command": [
-        "npx",
-        "chrome-devtools-mcp@latest"
-      ]
+  "$schema": "https://opencode.ai/config.schema.json",
+  "provider": {
+    "ai360": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "360 Zhinao (OpenAI-compatible)",
+      "options": {
+        "baseURL": "{env:AI360_BASE_URL}",
+        "apiKey": "{env:AI360_API_KEY}"
+      },
+      "models": {
+        "{env:AI360_MODEL}": {
+          "name": "{env:AI360_MODEL}"
+        }
+      }
     }
   },
-  "permission": {
-    "skill": "allow"
-  }
+  "model": "ai360/{env:AI360_MODEL}"
 }
