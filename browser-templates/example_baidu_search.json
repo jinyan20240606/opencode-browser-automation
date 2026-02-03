@@ -1,0 +1,37 @@
+{
+  "name": "example_baidu_search",
+  "task": "打开百度搜索 Python 教程",
+  "created_at": "2026-02-02T10:00:00Z",
+  "steps": [
+    {
+      "command": "open",
+      "args": ["https://www.baidu.com"],
+      "note": "打开百度首页"
+    },
+    {
+      "command": "state",
+      "args": [],
+      "note": "获取页面元素，找到搜索框"
+    },
+    {
+      "command": "input",
+      "args": ["7", "Python 教程"],
+      "note": "在搜索框输入关键词（索引7是搜索输入框）"
+    },
+    {
+      "command": "click",
+      "args": ["9"],
+      "note": "点击搜索按钮（索引9是百度一下按钮）"
+    },
+    {
+      "command": "state",
+      "args": [],
+      "note": "确认搜索结果页面加载"
+    },
+    {
+      "command": "close",
+      "args": [],
+      "note": "关闭浏览器"
+    }
+  ]
+}

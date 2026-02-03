@@ -216,3 +216,127 @@ browser-use open <url>                # Fresh start
 ```bash
 browser-use close
 ```
+
+---
+
+## Template-Based Execution (省 Token 模式)
+
+当用户指定使用某个模版执行任务时，可以参考之前保存的执行历史，减少探索和思考的 token 消耗。
+
+### 模版目录
+
+```
+/Users/jinyan1/Desktop/opencode-browser-automation/browser-templates/
+```
+
+### 工作流程
+
+#### 1. 首次执行任务 - 保存模版
+
+正常执行 browser-use 任务，完成后将执行步骤保存为模版：
+
+```bash
+# 执行任务（正常流程）
+browser-use open https://example.com
+browser-use state
+browser-use click 5
+browser-use input 3 "test"
+browser-use close
+```
+
+任务完成后，如果用户要求保存模版，将执行过的命令序列保存到模版文件：
+
+```bash
+# 保存模版到文件
+cat > /Users/jinyan1/Desktop/opencode-browser-automation/browser-templates/<模版名>.json << 'EOF'
+{
+  "name": "<模版名>",
+  "task": "<任务描述>",
+  "created_at": "<时间戳>",
+  "steps": [
+    {"command": "open", "args": ["https://example.com"], "note": "打开网站"},
+    {"command": "state", "args": [], "note": "获取页面状态"},
+    {"command": "click", "args": ["5"], "note": "点击搜索按钮"},
+    {"command": "input", "args": ["3", "test"], "note": "输入搜索内容"},
+    {"command": "close", "args": [], "note": "关闭浏览器"}
+  ]
+}
+EOF
+```
+
+#### 2. 使用模版执行任务 - 省 Token
+
+当用户要求使用模版执行时：
+
+1. **读取模版文件**获取之前的执行步骤
+2. **参考模版步骤**快速执行，跳过探索过程
+3. **直接按步骤执行**，仅在必要时调整（如元素索引变化）
+
+```bash
+# 读取模版
+cat /Users/jinyan1/Desktop/opencode-browser-automation/browser-templates/<模版名>.json
+
+# 按模版步骤执行（跳过思考，直接执行）
+browser-use open https://example.com
+browser-use click 5  # 参考模版，直接点击
+browser-use input 3 "test"  # 参考模版，直接输入
+browser-use close
+```
+
+### 模版格式
+
+```json
+{
+  "name": "login_task",
+  "task": "登录网站",
+  "created_at": "2026-02-02T10:00:00Z",
+  "steps": [
+    {
+      "command": "open",
+      "args": ["https://example.com/login"],
+      "note": "打开登录页"
+    },
+    {
+      "command": "state",
+      "args": [],
+      "note": "获取表单元素"
+    },
+    {
+      "command": "input",
+      "args": ["0", "username"],
+      "note": "输入用户名到第一个输入框"
+    },
+    {
+      "command": "input", 
+      "args": ["1", "password"],
+      "note": "输入密码到第二个输入框"
+    },
+    {
+      "command": "click",
+      "args": ["2"],
+      "note": "点击登录按钮"
+    }
+  ]
+}
+```
+
+### 使用模版的关键原则
+
+1. **有模版时**：直接按模版步骤执行，不需要先 `state` 分析
+2. **元素索引变化**：如果执行失败，用 `state` 检查并调整索引
+3. **保存新模版**：用户要求时才保存，记录所有执行的命令
+
+### 何时使用模版
+
+- ✅ 用户明确要求"使用模版 xxx 执行"
+- ✅ 重复性任务（每日签到、定期检查等）
+- ✅ 页面结构稳定的操作
+- ❌ 首次探索性任务
+- ❌ 用户未指定模版时
+
+### Token 节省原理
+
+| 执行方式 | Token 消耗 | 原因 |
+|---------|-----------|------|
+| 无模版 | 高 | 需要 state 分析页面、思考决策 |
+| 有模版 | **低** | 直接执行已知步骤，跳过分析 |
